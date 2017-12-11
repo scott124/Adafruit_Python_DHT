@@ -24,10 +24,11 @@ import Adafruit_DHT
 import time
 import httplib, urllib
 import json
-
+import RPi.GPIO as GPIO
 deviceId = "DXIHsiDT" 
 deviceKey = "PqOTzD9oFiqHsRDT"
-
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 def post_to_mcs(payload):
     headers = {"Content-type": "application/json", "deviceKey": deviceKey}
@@ -49,6 +50,7 @@ def post_to_mcs(payload):
 
 while True:  
     h0,t0=Adafruit_DHT.read_retry(11,4)
-    payload = {"datapoints":[{"dataChnId":"Humidity","values":{"value":h0}},{"dataChnId":"Temperature","values":{"value":t0}}]}
+    SwitchStatus=1-GPIO.input(24)
+    payload = {"datapoints":[{"dataChnId":"Humidity","values":{"value":h0}},{"dataChnId":"Temperature","values":{"value":t0}},{"dataChnId":"SwitchStatus","values":{"value":SwitchStatus}}]}
     post_to_mcs(payload)
-    time.sleep(10)
+    time.sleep(1)
